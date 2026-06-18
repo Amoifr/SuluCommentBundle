@@ -12,8 +12,6 @@
 namespace Sulu\Bundle\CommentBundle\Controller;
 
 use Doctrine\ORM\EntityManagerInterface;
-use FOS\RestBundle\Controller\Annotations\Post;
-use FOS\RestBundle\Routing\ClassResourceInterface;
 use FOS\RestBundle\View\ViewHandlerInterface;
 use Sulu\Bundle\CommentBundle\Entity\CommentInterface;
 use Sulu\Bundle\CommentBundle\Entity\CommentRepositoryInterface;
@@ -23,8 +21,8 @@ use Sulu\Component\Rest\Exception\EntityNotFoundException;
 use Sulu\Component\Rest\Exception\RestException;
 use Sulu\Component\Rest\ListBuilder\Doctrine\DoctrineListBuilderFactoryInterface;
 use Sulu\Component\Rest\ListBuilder\FieldDescriptorInterface;
-use Sulu\Component\Rest\ListBuilder\ListRepresentation;
 use Sulu\Component\Rest\ListBuilder\Metadata\FieldDescriptorFactoryInterface;
+use Sulu\Component\Rest\ListBuilder\PaginatedRepresentation;
 use Sulu\Component\Rest\RequestParametersTrait;
 use Sulu\Component\Rest\RestHelperInterface;
 use Symfony\Component\HttpFoundation\Request;
@@ -33,7 +31,7 @@ use Symfony\Component\HttpFoundation\Response;
 /**
  * Provides an api for comments.
  */
-class CommentController extends AbstractRestController implements ClassResourceInterface
+class CommentController extends AbstractRestController
 {
     use RequestParametersTrait;
 
@@ -68,10 +66,13 @@ class CommentController extends AbstractRestController implements ClassResourceI
     private $entityManager;
 
     /**
-     * @var string
+     * @var class-string<CommentInterface>
      */
     private $commentClass;
 
+    /**
+     * @param class-string<CommentInterface> $commentClass
+     */
     public function __construct(
         ViewHandlerInterface $viewHandler,
         RestHelperInterface $restHelper,
@@ -118,17 +119,14 @@ class CommentController extends AbstractRestController implements ClassResourceI
             }
         }
 
-        /** @var string $route */
-        $route = $request->attributes->get('_route');
         $results = $listBuilder->execute();
-        $list = new ListRepresentation(
+        $count = $listBuilder->count();
+        $list = new PaginatedRepresentation(
             $results,
             'comments',
-            $route,
-            $request->query->all(),
             $listBuilder->getCurrentPage(),
-            $listBuilder->getLimit(),
-            $listBuilder->count()
+            $listBuilder->getLimit() ?: $count,
+            $count
         );
 
         return $this->handleView($this->view($list, 200));
@@ -191,8 +189,6 @@ class CommentController extends AbstractRestController implements ClassResourceI
      * trigger a action for given comment specified over action get-parameter
      * - publish: Publish a comment
      * - unpublish: Unpublish a comment.
-     *
-     * @Post("/comments/{id}")
      */
     public function postTriggerAction(int $id, Request $request): Response
     {

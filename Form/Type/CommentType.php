@@ -11,6 +11,7 @@
 
 namespace Sulu\Bundle\CommentBundle\Form\Type;
 
+use Sulu\Bundle\CommentBundle\Entity\CommentInterface;
 use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\Extension\Core\Type\HiddenType;
 use Symfony\Component\Form\Extension\Core\Type\SubmitType;
@@ -19,6 +20,9 @@ use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\OptionsResolver\OptionsResolver;
 use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
 
+/**
+ * @extends AbstractType<CommentInterface|null>
+ */
 class CommentType extends AbstractType
 {
     /**

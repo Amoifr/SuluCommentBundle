@@ -62,17 +62,21 @@ class CommentSerializationSubscriber implements EventSubscriberInterface
             return;
         }
 
-        /** @var Comment $comment */
-        $comment = $event->getObject();
-        if (!$comment instanceof Comment || !$creator = $comment->getCreator()) {
+        $object = $event->getObject();
+        if (!$object instanceof Comment || !$creator = $object->getCreator()) {
             return;
         }
+        $comment = $object;
         /** @var User $creator */
 
         /** @var SerializationVisitorInterface $visitor */
         $visitor = $event->getVisitor();
 
         $contact = $creator->getContact();
+        if (!$contact) {
+            return;
+        }
+
         $visitor->visitProperty(
             new StaticPropertyMetadata('', 'creatorId', $contact->getId()),
             $contact->getId()
