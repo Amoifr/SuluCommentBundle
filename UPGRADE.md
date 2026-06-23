@@ -12,28 +12,6 @@ This version adds support for Sulu 3.0. The bundle now requires:
 - Doctrine ORM 2.17.3 or 3.3 or higher
 - FOSRestBundle 3.2 or higher
 
-### Removing the rest routing
-
-The Rest Routing bundle is no longer required. Remove `type: rest` from your
-admin and website route imports:
-
-```diff
-# config/routes/sulu_comment_admin.yaml
- sulu_comment_api:
--    type: rest
-     resource: "@SuluCommentBundle/Resources/config/routing_api.yaml"
-     prefix: /admin/api
-```
-
-```diff
-# config/routes/sulu_comment_website.yaml
- sulu_comment:
--    type: rest
-     resource: "@SuluCommentBundle/Resources/config/routing_website.yaml"
-```
-
-The generated paths and route names are kept unchanged.
-
 ### REST list response changed
 
 The admin comments and threads list endpoints now return a
@@ -69,8 +47,32 @@ The PHPUnit 9 configuration and the PHP 7.2 Prophecy bridge have been removed.
 Use the default `phpunit.xml.dist` configuration with the supported PHP and
 PHPUnit versions.
 
-## dev-develop
+## 2.0.0
 
+### Deprecate usage of fos rest routing
+
+We are no longer considering the [fos rest routing](https://github.com/handcraftedinthealps/RestRoutingBundle) as a best practice.
+All bundles should use the Symfony routing system instead.
+
+Inside your `config/routes/sulu_website.yaml` and `config/routes/sulu_admin.yaml` you can remove the fos rest routing configuration.
+First, remove all instances of `type: rest` and also replace `.yml` with `.yaml`:
+
+```diff
+# config/routes/sulu_website.yaml`
+ sulu_comments:
+-    type: rest
+-    resource: "@SuluCommentBundle/Resources/config/routing_website.yml"
++    resource: "@SuluCommentBundle/Resources/config/routing_website.yaml"
+```
+
+```diff
+# config/routes/sulu_admin.yaml`
+ sulu_comment_api:
+-    type: rest
+-    resource: "@SuluCommentBundle/Resources/config/routing_api.yml"
++    resource: "@SuluCommentBundle/Resources/config/routing_api.yaml"
+     prefix: /admin/api
+```
 ### Rename comment_count property to commentCount
 
 The `comment_count` property of serialized threads was renamed to `commentCount`.
